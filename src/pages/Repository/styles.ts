@@ -90,7 +90,7 @@ ul{
 
 `
 
-export const Inssues = styled.div`
+export const Issues = styled.div`
 
 margin-top: 80px;
 

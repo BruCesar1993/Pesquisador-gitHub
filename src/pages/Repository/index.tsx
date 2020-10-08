@@ -1,16 +1,56 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {useRouteMatch, Link} from 'react-router-dom'
-import {Header, RepositoryInfo, Inssues} from './styles'
+import {Header, RepositoryInfo, Issues} from './styles'
 import logoImg from '../../images/logo.svg'
 import { FiChevronLeft, FiAlignRight } from 'react-icons/fi'
+import api from '../../services/api'
 
 interface RepositoryParams{
   repository :string
 }
 
+interface Repository{
+
+  full_name: string;
+  description: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  owner: {
+    login: string;
+    avatar_url: string;
+  }
+
+
+}
+
+interface Issue{
+
+  id: number;
+  title: string;
+  html_url:string;
+  user:{
+    login:string;
+  }
+
+}
+
 const Repository: React.FC = ()=>{
 
+  const[repository, setRepository]= useState<Repository | null>(null)
+  const [issues,setIssues]= useState<Issue[]>([])
+
   const {params} = useRouteMatch<RepositoryParams>()
+
+  useEffect(() =>{
+    api.get(`repos/${params.repository}`).then (response => {
+      setRepository(response.data)
+    })
+
+    api.get(`repos/${params.repository}/issues`).then (response => {
+      setIssues (response.data)
+    })
+  }, [params.repository])
 
   return (
     <>
@@ -25,45 +65,51 @@ const Repository: React.FC = ()=>{
 
       </Link>
     </Header>
-    <RepositoryInfo>
+   {repository && (
+      <RepositoryInfo>
 
       <header>
-        <img src = "https://avatars2.githubusercontent.com/u/61169682?s=400&u=1b085260ef0d4a1e7cb476dd4d906091ef6a422e&v=4" alt= "Gabi"/>
+        <img src ={repository.owner.avatar_url}
+             alt= {repository.owner.login}/>
         <div>
-            <strong>Gabi/unform</strong>
-            <p>descriçao</p>
+            <strong>{repository.full_name}</strong>
+            <p>{repository.description}</p>
         </div>
       </header>
       <ul>
 
         <li>
-          <strong>1880</strong>
+          <strong>{repository.stargazers_count}</strong>
           <span>start</span>
         </li>
 
         <li>
-          <strong>1880</strong>
-          <span>start</span>
+          <strong>{repository.forks_count}</strong>
+          <span>Forks</span>
         </li>
 
         <li>
-          <strong>1880</strong>
-          <span>start</span>
+          <strong>{repository.open_issues_count}</strong>
+          <span>Issues abertas</span>
         </li>
 
       </ul>
 
     </RepositoryInfo>
+   )}
 
-    <Inssues>
-      <Link to= "nada">
+    <Issues>
+      {issues.map(issue => (
+        <a key= {issue.id} href={issue.html_url}>
         <div>
-           <strong>repository.full_name</strong>
-           <p>repository.description</p>
+           <strong>{issue.title}</strong>
+           <p>{issue.user.login}</p>
         </div>
         <FiAlignRight size={20}/>
-      </Link>
-    </Inssues>
+      </a>
+      )
+      )}
+    </Issues>
 
 
 
