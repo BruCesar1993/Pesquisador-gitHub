@@ -13,7 +13,7 @@ export default createGlobalStyle `
 }
 
 body{
-  background: url(${GitHub}) no-repeat 70% top;
+  background: grey url(${GitHub}) no-repeat 70% top;
 
 }
 
